@@ -37,7 +37,7 @@ function init(){
 	aiMoved = false;
 	
 	// // set AI
-	// ai = new AIPlayer();
+	ai = new AIPlayer();
 	// ai.setSeed(player === Tile.NOUGHT ? Tile.CROSS : Tile.NOUGHT);
 	
 	// console.log(ai.move());
@@ -48,6 +48,7 @@ function tick(){
 	
 	update();
 	render();
+	
 }
 
 function update(){
@@ -55,6 +56,11 @@ function update(){
 	for (var i = data.length; i--;){
 		data[i].update();
 		activeAnim = activeAnim || data[i].active();
+	}
+
+	if(currPlayer == Tile.CROSS) {
+		selectedIdx = ai.stupidBot();
+		selectABox(selectedIdx);
 	}
 
 	// if(!activeAnim){
@@ -184,7 +190,7 @@ function Tile(x, y){
 }
 
 function mouseDown(evt){
-	// if(!isPlayer) return;
+	if(currPlayer != Tile.NOUGHT) return;
 	var el = evt.target;
 
 	var px = evt.clientX - el.offsetLeft;
@@ -197,10 +203,14 @@ function mouseDown(evt){
 		if (data[idx].hasData()){
 			return;
 		}
-
-		data[idx].flip(currPlayer);
-		currPlayer = changePlayer(currPlayer);
+		
+		selectABox(idx);
 	}
+}
+
+function selectABox(idx) {
+	data[idx].flip(currPlayer);
+	currPlayer = changePlayer(currPlayer);
 }
 
 // ==================================================================
@@ -209,10 +219,35 @@ function mouseDown(evt){
 
 function changePlayer(currPlayer)
 {
-	if(currPlayer == ai){
-		return human;
+	if(currPlayer == Tile.CROSS){ // bot -> human
+		return Tile.NOUGHT;
 	}
-	else if(currPlayer == human){
-		return ai;
+	else if(currPlayer == Tile.NOUGHT){ // human -> bot
+		delay = 0;
+		return Tile.CROSS;
 	}
+}
+
+
+// ==================================================================
+//    AI
+// ==================================================================
+
+function AIPlayer(){
+
+	this.stupidBot = function() {
+		idx = Math.floor( Math.random() * 25 );
+		for(i = idx; i >= 0; i--) {
+			if(!data[i].hasData()) {
+				return i;
+			}
+		}
+
+		for(i = idx + 1; i < 26; i++) {
+			if(!data[i].hasData()) {
+				return i;
+			}
+		}
+	}
+
 }

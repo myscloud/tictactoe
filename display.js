@@ -60,11 +60,7 @@ function update(){
 
 	if(currPlayer == Tile.CROSS) {
 		// selectedIdx = ai.stupidBot();
-		ai.initTmpBoard();
-		results = ai.minimaxBot(1, 0, -100000, 100000);
-		selectedIdx = results[1];
-		console.log(selectedIdx);
-		// currPlayer = changePlayer(currPlayer);
+		selectedIdx = ai.minimaxBot();
 		selectABox(selectedIdx);
 	}
 
@@ -359,63 +355,79 @@ function AIPlayer(){
 		}
 	}
 
-	this.minimaxBot = function(turn, depth, alpha, beta) {
+	this.minimaxBot = function() {
+		var maxVal = -100000;
+		var maxId = this.firstEmpty();
+		var score = inf;
+		var i;
+
+		this.initTmpBoard();
+		for(i = 0; i < 26; i++) {
+			if(tmpBoard[i] == -1) {
+				tmpBoard[i] = 1;
+				score = this.calcScore(0);
+				if(score == inf) {
+					score = this.minimaxRecursive(0, 1, -100000, 100000);
+				}
+				
+				if(score > maxVal) {
+					maxVal = score;
+					maxId = i;
+				}
+
+				tmpBoard[i] = -1;
+			}
+		}
+		return maxId;
+	}
+
+	this.minimaxRecursive = function(turn, depth, alpha, beta) {
 		
 		var i;
 		var score = inf;
-		var maxId = 0;
-		var maxVal = -100;
-		var minId = 0;
-		var minVal = 100;
+		var maxVal = -100000;
+		var minVal = 100000;
 
 		if(turn == 1) { // our turn - get max
 			for(i = 0; i < 26; i++) {
 				if(tmpBoard[i] == -1) {
 					tmpBoard[i] = 1;
 					score = this.calcScore(depth);
-					if(score == inf && depth <= 2) {
-						results = this.minimaxBot(0, depth+1, alpha, beta);
-						score = results[0];
-					}
-
-					// if(score > alpha) alpha = score;
-					// if(alpha >= beta) return [alpha, maxId];
-					
-					if(score > maxVal && score != inf) {
-						maxVal = score;
-						maxId = i;
+					if(score == inf && depth <= 4) {
+						score = this.minimaxRecursive(0, depth+1, alpha, beta);
 					}
 
 					tmpBoard[i] = -1;
+					if(score > alpha) alpha = score;
+					if(alpha >= beta) break;
 				}
 			}
-			// console.log("maxval = " + maxVal);
-			return [maxVal, maxId];
+			return alpha;
 		}
 		else if(turn == 0) { // user's turn - get min
 			for(i = 0; i < 26; i++) {
 				if(tmpBoard[i] == -1) {
 					tmpBoard[i] = 0;
 					score = this.calcScore(depth);
-					if(score == inf && depth <= 2) {
-						results = this.minimaxBot(1, depth+1, alpha, beta);
-						score = results[0];
+					if(score == inf && depth <= 4) {
+						score = this.minimaxRecursive(1, depth+1, alpha, beta);
 					}
 
-					// if(score < beta) beta = score;
-					// if(alpha >= beta) return [beta, minId];
-
-					if(score < minVal && score != inf) {
-						minVal = score;
-						minId = i;
-					}
 					tmpBoard[i] = -1;
+					if(score < beta) beta = score;
+					if(alpha >= beta) break;
 				}
 			}
-			// console.log("minval = " + minVal);
-			return [minVal, minId];
+			return beta;
 		}
 		return 0;
 	}
 
+	this.firstEmpty = function() {
+		var i;
+		for(i = 0; i < 25; i++) {
+			if(tmpBoard[i] == -1) return i;
+		}
+		return 0;
+	}
 }

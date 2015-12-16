@@ -59,13 +59,18 @@ function update(){
 	}
 
 	if(currPlayer == Tile.CROSS) {
-		selectedIdx = ai.stupidBot();
+		// selectedIdx = ai.stupidBot();
+		ai.initTmpBoard();
+		results = ai.minimaxBot(1, 0, 100);
+		selectedIdx = results[1];
+		console.log(selectedIdx);
+		// currPlayer = changePlayer(currPlayer);
 		selectABox(selectedIdx);
 	}
 
 	ai.initTmpBoard();
 	arr = ai.checkWin();
-	console.log(arr);
+	// console.log(arr);
 
 	// if(!activeAnim){
 	// 	if(!aiMoved && !isPlayer){
@@ -264,11 +269,13 @@ function AIPlayer(){
 				return i;
 			}
 		}
+
+		return 0; // in case of drawed game
 	}
 
 	// 0 = O, 1 = X, -1 = BLANK
 	var tmpBoard;
-	var inf;
+	var inf = 100000;
 
 	this.initTmpBoard = function() {
 		tmpBoard = [];
@@ -281,6 +288,7 @@ function AIPlayer(){
 
 	this.checkWin = function() {
 		results = [];
+		var i, j;
 		// check vertical
 		for(i = 0; i < 5; i++) {
 			first = tmpBoard[i * 5];
@@ -335,65 +343,75 @@ function AIPlayer(){
 	}
 
 	this.calcScore = function(depth) {
-		// check vertical
-		for(i = 0; i < 5; i++){
-			first = tmpBoard[i * 5];
-			count = 0;
-			for(j = 0; j < 5; j++) {
-				if(tmpBoard[(i * 5) + j] == first) count++;
+		results = this.checkWin();
+		if(results === []) {
+			return inf;
+		}
+		else {
+			player = tmpBoard[results[0]]; // get type of winner (human/ai)
+			if(player == 1) {
+				console.log("test " + depth);
+				return (-1 * (depth - 30));
 			}
-			// if(count == 5) {
-			// 	if(turn == )
-			// }
+			else if(player == 0) {
+				console.log("test " + depth);
+				return (depth - 30);
+			}
+			else return inf;
 		}
 	}
 
 	this.minimaxBot = function(turn, depth, peak) {
 		
-		if(turn == 1) { // our turn - get max
-			
-			maxId = 0;
-			maxVal = -100;
+		var i;
+		var score = inf;
+		var maxId = 0;
+		var maxVal = -100;
+		var minId = 0;
+		var minVal = 100;
 
+		if(turn == 1) { // our turn - get max
 			for(i = 0; i < 26; i++) {
 				if(tmpBoard[i] == -1) {
 					tmpBoard[i] = 1;
-					score = calcScore();
-					if(score == inf) {
-						score = minimaxBot(0, depth+1, maxVal);
+					score = this.calcScore(depth);
+					if(score == inf && depth <= 2) {
+						results = this.minimaxBot(0, depth+1, maxVal);
+						score = results[0];
 					}
-
-					if(score > maxVal) {
+					
+					if(score > maxVal && score != inf) {
 						maxVal = score;
 						maxId = i;
 					}
+
 					tmpBoard[i] = -1;
 				}
 			}
-			return maxId;
+			// console.log("maxval = " + maxVal);
+			return [maxVal, maxId];
 		}
 		else if(turn == 0) { // user's turn - get min
-
-			minId = 0;
-			minVal = 100;
-
 			for(i = 0; i < 26; i++) {
 				if(tmpBoard[i] == -1) {
 					tmpBoard[i] = 0;
-					score = calcScore();
-					if(score == inf) {
-						score = minimaxBot(1, depth+1, minVal);
+					score = this.calcScore(depth);
+					if(score == inf && depth <= 2) {
+						results = this.minimaxBot(1, depth+1, minVal);
+						score = results[0];
 					}
 
-					if(score < minVal) {
+					if(score < minVal && score != inf) {
 						minVal = score;
 						minId = i;
 					}
 					tmpBoard[i] = -1;
 				}
 			}
-			return minId;
+			// console.log("minval = " + minVal);
+			return [minVal, minId];
 		}
+		return 0;
 	}
 
 }

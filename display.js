@@ -61,7 +61,7 @@ function update(){
 	if(currPlayer == Tile.CROSS) {
 		// selectedIdx = ai.stupidBot();
 		ai.initTmpBoard();
-		results = ai.minimaxBot(1, 0, 100);
+		results = ai.minimaxBot(1, 0, -100000, 100000);
 		selectedIdx = results[1];
 		console.log(selectedIdx);
 		// currPlayer = changePlayer(currPlayer);
@@ -350,18 +350,16 @@ function AIPlayer(){
 		else {
 			player = tmpBoard[results[0]]; // get type of winner (human/ai)
 			if(player == 1) {
-				console.log("test " + depth);
 				return (-1 * (depth - 30));
 			}
 			else if(player == 0) {
-				console.log("test " + depth);
 				return (depth - 30);
 			}
 			else return inf;
 		}
 	}
 
-	this.minimaxBot = function(turn, depth, peak) {
+	this.minimaxBot = function(turn, depth, alpha, beta) {
 		
 		var i;
 		var score = inf;
@@ -376,9 +374,12 @@ function AIPlayer(){
 					tmpBoard[i] = 1;
 					score = this.calcScore(depth);
 					if(score == inf && depth <= 2) {
-						results = this.minimaxBot(0, depth+1, maxVal);
+						results = this.minimaxBot(0, depth+1, alpha, beta);
 						score = results[0];
 					}
+
+					// if(score > alpha) alpha = score;
+					// if(alpha >= beta) return [alpha, maxId];
 					
 					if(score > maxVal && score != inf) {
 						maxVal = score;
@@ -397,9 +398,12 @@ function AIPlayer(){
 					tmpBoard[i] = 0;
 					score = this.calcScore(depth);
 					if(score == inf && depth <= 2) {
-						results = this.minimaxBot(1, depth+1, minVal);
+						results = this.minimaxBot(1, depth+1, alpha, beta);
 						score = results[0];
 					}
+
+					// if(score < beta) beta = score;
+					// if(alpha >= beta) return [beta, minId];
 
 					if(score < minVal && score != inf) {
 						minVal = score;

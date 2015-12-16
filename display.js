@@ -460,7 +460,7 @@ function AIPlayer(){
 				if(tmpBoard[i] == -1) {
 					tmpBoard[i] = 1;
 					score = this.calcScore(depth);
-					if(score == inf && depth <= 4) {
+					if(score == inf && depth <= 3) {
 						score = this.minimaxRecursive(0, depth+1, alpha, beta);
 					}
 
@@ -476,7 +476,7 @@ function AIPlayer(){
 				if(tmpBoard[i] == -1) {
 					tmpBoard[i] = 0;
 					score = this.calcScore(depth);
-					if(score == inf && depth <= 4) {
+					if(score == inf && depth <= 3) {
 						score = this.minimaxRecursive(1, depth+1, alpha, beta);
 					}
 
@@ -484,9 +484,7 @@ function AIPlayer(){
 					if(score < beta) beta = score;
 					if(alpha >= beta) break;
 				}
-				tmpBoard[i] = -1;
 			}
-
 			return beta;
 		}
 		return 0;

@@ -63,6 +63,10 @@ function update(){
 		selectABox(selectedIdx);
 	}
 
+	ai.initTmpBoard();
+	arr = ai.checkWin();
+	console.log(arr);
+
 	// if(!activeAnim){
 	// 	if(!aiMoved && !isPlayer){
 	// 		var m = ai.move();
@@ -148,6 +152,18 @@ function Tile(x, y){
 
 	this.hasData = function(){
 		return tile != Tile.BLANK;
+	}
+
+	this.isBlank = function(){
+		return tile === Tile.BLANK;
+	}
+
+	this.isNought = function(){
+		return tile === Tile.NOUGHT;
+	}
+
+	this.isCross = function(){
+		return tile === Tile.CROSS;
 	}
 
 	this.set = function(next){
@@ -247,6 +263,136 @@ function AIPlayer(){
 			if(!data[i].hasData()) {
 				return i;
 			}
+		}
+	}
+
+	// 0 = O, 1 = X, -1 = BLANK
+	var tmpBoard;
+	var inf;
+
+	this.initTmpBoard = function() {
+		tmpBoard = [];
+		for(i = 0; i < data.length; i++) {
+			if(data[i].isBlank()) tmpBoard.push(-1);
+			else if(data[i].isNought()) tmpBoard.push(0);
+			else tmpBoard.push(1);
+		}
+	}
+
+	this.checkWin = function() {
+		results = [];
+		// check vertical
+		for(i = 0; i < 5; i++) {
+			first = tmpBoard[i * 5];
+			count = 0;
+			for(j = 0; j < 5; j++) {
+				idx = (i * 5) + j;
+				if(tmpBoard[idx] == first) count++;
+				results.push(idx);
+			}
+
+			if(count == 5 && first != -1) return results;
+			else results = [];
+		}
+
+		// check horizontal
+		for(j = 0; j < 5; j++) {
+			first = tmpBoard[j];
+			count = 0;
+			for(i = 0; i < 5; i++) {
+				idx = (i * 5) + j;
+				if(tmpBoard[idx] == first) count++;
+				results.push(idx);
+			}
+
+			if(count == 5 && first != -1) return results;
+			else results = [];
+		}
+
+		// check diagonal 1
+		first = tmpBoard[0];
+		count = 0;
+		for(i = 0; i < 5; i++) {
+			idx = (i * 5) + i;
+			if(tmpBoard[idx] == first) count++;
+			results.push(idx);
+		}
+		if(count == 5 && first != -1) return results;
+		else results = [];
+
+		// check diagnoal 2
+		first = tmpBoard[4];
+		count = 0;
+		for(i = 0, j = 4; i < 5 && j >= 0; i++, j--) {
+			idx = (i * 5) + j;
+			if(tmpBoard[idx] == first) count++;
+			results.push(idx);
+		}
+		if(count == 5 && first != -1) return results;
+		else results = [];
+
+		return results;
+	}
+
+	this.calcScore = function(depth) {
+		// check vertical
+		for(i = 0; i < 5; i++){
+			first = tmpBoard[i * 5];
+			count = 0;
+			for(j = 0; j < 5; j++) {
+				if(tmpBoard[(i * 5) + j] == first) count++;
+			}
+			// if(count == 5) {
+			// 	if(turn == )
+			// }
+		}
+	}
+
+	this.minimaxBot = function(turn, depth, peak) {
+		
+		if(turn == 1) { // our turn - get max
+			
+			maxId = 0;
+			maxVal = -100;
+
+			for(i = 0; i < 26; i++) {
+				if(tmpBoard[i] == -1) {
+					tmpBoard[i] = 1;
+					score = calcScore();
+					if(score == inf) {
+						score = minimaxBot(0, depth+1, maxVal);
+					}
+
+					if(score > maxVal) {
+						maxVal = score;
+						maxId = i;
+					}
+					tmpBoard[i] = -1;
+				}
+			}
+			return maxId;
+		}
+		else if(turn == 0) { // user's turn - get min
+
+			minId = 0;
+			minVal = 100;
+
+			for(i = 0; i < 26; i++) {
+				if(tmpBoard[i] == -1) {
+					tmpBoard[i] = 0;
+					score = calcScore();
+					if(score == inf) {
+						score = minimaxBot(1, depth+1, minVal);
+					}
+
+					if(score < minVal) {
+						minVal = score;
+						minId = i;
+					}
+					tmpBoard[i] = -1;
+				}
+			}
+			return minId;
 		}
 	}
 

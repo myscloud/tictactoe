@@ -3,6 +3,7 @@ var data;
 var currPlayer; // current player (can be either human or ai)
 var human, ai;
 var isPlayer, aiMoved;
+var singlePulse=0;
 
 window.onload = function main(){
 
@@ -62,11 +63,14 @@ function update(){
 		selectedIdx = ai.stupidBot();
 		selectABox(selectedIdx);
 	}
-
-	ai.initTmpBoard();
-	arr = ai.checkWin();
-	console.log(arr);
-
+	if(singlePulse==0){
+		ai.initTmpBoard();
+		arr = ai.checkWin();
+		if(arr.length==5){
+			singlePulse++;
+			win(arr);
+		}
+	}
 	// if(!activeAnim){
 	// 	if(!aiMoved && !isPlayer){
 	// 		var m = ai.move();
@@ -93,7 +97,28 @@ function render(){
 		data[i].draw(ctx);
 	}
 }
-
+function win(arr){
+	if(data[0].isNought){
+		for(i=0;i<5;i++){
+		data[arr[i]].set(Tile.NOUGHTWIN);
+		}
+		setTimeout(function(){
+   		alert("You win!");
+		location.reload();
+		}, 1000);
+		
+	}else{
+		for(i=0;i<5;i++){
+		data[arr[i]].set(Tile.CROSSWIN);
+		}
+		setTimeout(function(){
+   		alert("You lose!");
+		location.reload();
+		}, 1000);
+	}
+	
+	
+}
 function Tile(x, y){
 
 	var x = x, y = y;
@@ -139,6 +164,32 @@ function Tile(x, y){
 		Tile.CROSS = new Image();
 		Tile.CROSS.src = _c.toDataURL();
 		
+		//nought win
+		_ctx.fillStyle = "#9FEAAE";
+		_ctx.lineWidth = 4;
+		_ctx.strokeStyle = "black";
+		_ctx.fillRect(0, 0, 80, 80);
+		_ctx.beginPath();
+		_ctx.arc(40, 40, 30, 0, 2*Math.PI);
+		_ctx.stroke();
+
+		Tile.NOUGHTWIN = new Image();
+		Tile.NOUGHTWIN.src = _c.toDataURL();
+
+		//cross win
+		_ctx.fillStyle = "red";
+		_ctx.lineWidth = 4;
+		_ctx.strokeStyle = "black";
+		_ctx.fillRect(0, 0, 80, 80);
+		_ctx.beginPath();
+		_ctx.moveTo(10, 10);
+		_ctx.lineTo(70, 70);
+		_ctx.moveTo(70, 10);
+		_ctx.lineTo(10, 70);
+		_ctx.stroke();
+
+		Tile.CROSSWIN = new Image();
+		Tile.CROSSWIN.src = _c.toDataURL();
 
 		tile = Tile.BLANK;
 	}
@@ -200,7 +251,7 @@ function Tile(x, y){
 				y - i*p*0.2,
 				res,
 				100 + i*p*0.4
-			);
+				);
 		}
 		
 	}
@@ -228,7 +279,7 @@ function mouseDown(evt){
 
 function selectABox(idx) {
 	data[idx].flip(currPlayer);
-	checkWinner();
+	
 	currPlayer = changePlayer(currPlayer);
 
 }
@@ -379,30 +430,26 @@ function AIPlayer(){
 		else if(turn == 0) { // user's turn - get min
 
 			minId = 0;
-			minVal = 100;
+		minVal = 100;
 
-			for(i = 0; i < 26; i++) {
-				if(tmpBoard[i] == -1) {
-					tmpBoard[i] = 0;
-					score = calcScore();
-					if(score == inf) {
-						score = minimaxBot(1, depth+1, minVal);
-					}
-
-					if(score < minVal) {
-						minVal = score;
-						minId = i;
-					}
-					tmpBoard[i] = -1;
+		for(i = 0; i < 26; i++) {
+			if(tmpBoard[i] == -1) {
+				tmpBoard[i] = 0;
+				score = calcScore();
+				if(score == inf) {
+					score = minimaxBot(1, depth+1, minVal);
 				}
+
+				if(score < minVal) {
+					minVal = score;
+					minId = i;
+				}
+				tmpBoard[i] = -1;
 			}
-			return minId;
 		}
+		return minId;
 	}
+}
 
 }
-function checkWinner(){
-	for(i=0;i<25;i++){
-	console.log(data[i].tile);
-	}
-}
+

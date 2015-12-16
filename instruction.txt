@@ -1,0 +1,10 @@
+instruction 
+
+-- ตอนนี้ minimax พัง เหมือนมันประกาศ global var แต่เอาไปใช้ใน ai player ไม่ได้  ไม่รู้ทำไม
+เลยประกาศเองข้างใน ละมันพัง   แต่ยังไงถ้าเราจะทำ 5*5 ก็ต้องแก้ไอตัวนี้เองอยู่ดี
+-- ขาดตอนแสดงผลว่าใครแพ้ใครชนะ  เพราะ tutorial มีแค่นี้
+-- tutorial = https://www.youtube.com/watch?v=HFFKcP_olV0  part II = ai
+-- ไม่ต้องไปดู part I ก็ได้ เป็นพวก UI
+-- ตอนนี้ set UI เป็น 25 ช่ง แต่ไม่รู้ว่าแบบไหนเรียกชนะ
+-- set win -> winningPatterns && evaluate in Minimax
+-- ai description of Minimax  => http://www3.ntu.edu.sg/home/ehchua/programming/java/javagame_tictactoe_ai.html

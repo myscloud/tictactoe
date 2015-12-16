@@ -97,7 +97,7 @@ function render(){
 function win(arr){
 	console.log("win");
 	winBit=1;
-	if(data[0].isNought){
+	if(data[arr[0]].isNought()){
 		for(i=0;i<5;i++){
 			data[arr[i]].set(Tile.NOUGHTWIN);
 		}

@@ -79,6 +79,7 @@ function update(){
 	// else{
 	// 	aiMoved = false;
 	// }
+
 }
 
 function render(){
@@ -206,11 +207,14 @@ function mouseDown(evt){
 		
 		selectABox(idx);
 	}
+
 }
 
 function selectABox(idx) {
 	data[idx].flip(currPlayer);
+	checkWinner();
 	currPlayer = changePlayer(currPlayer);
+
 }
 
 // ==================================================================
@@ -250,4 +254,9 @@ function AIPlayer(){
 		}
 	}
 
+}
+function checkWinner(){
+	for(i=0;i<25;i++){
+	console.log(data[i].tile);
+	}
 }
